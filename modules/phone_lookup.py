@@ -1,44 +1,38 @@
-import phonenumbers
-from phonenumbers import carrier, geocoder, timezone, number_type
-from phonenumbers.phonenumberutil import NumberType
+import requests
 from colorama import Fore
+import os
+from dotenv import load_dotenv
 
-def lookup_number(number):
-    print(Fore.YELLOW + f"\n📱 Menganalisis nomor: {number}")
+load_dotenv()  # Load API key dari file .env
 
+def lookup_number_advanced(phone_number):
+    api_key = os.getenv("NUMVERIFY_API_KEY")
+    if not api_key:
+        print(Fore.RED + "[!] API key tidak ditemukan. Simpan di file .env sebagai NUMVERIFY_API_KEY.")
+        return
+
+    url = f"http://apilayer.net/api/validate?access_key={api_key}&number={phone_number}"
+
+    print(Fore.YELLOW + f"\n📡 Memeriksa nomor dengan NumVerify: {phone_number}")
+    
     try:
-        parsed = phonenumbers.parse(number)
+        response = requests.get(url)
+        data = response.json()
 
-        # Validasi
-        if not phonenumbers.is_valid_number(parsed):
-            print(Fore.RED + "[!] Nomor tidak valid secara internasional.")
-        else:
-            print(Fore.GREEN + "✅ Nomor valid secara global.")
+        if not data.get("valid"):
+            print(Fore.RED + "[✗] Nomor tidak valid.")
+            return
 
-        # Zona waktu
-        zones = timezone.time_zones_for_number(parsed)
-        # Negara asal
-        country = geocoder.description_for_number(parsed, "id")
-        # Operator seluler
-        provider = carrier.name_for_number(parsed, "id")
-        # Tipe nomor
-        type_of_number = number_type(parsed)
-        tipe_map = {
-            NumberType.MOBILE: "Mobile",
-            NumberType.FIXED_LINE: "Telepon Rumah",
-            NumberType.FIXED_LINE_OR_MOBILE: "Telp Rumah / Mobile",
-            NumberType.VOIP: "VoIP (Online)",
-            NumberType.TOLL_FREE: "Bebas Pulsa",
-            NumberType.PREMIUM_RATE: "Premium Rate",
-            NumberType.UNKNOWN: "Tidak diketahui"
-        }
+        print(Fore.GREEN + "\n✅ Nomor valid dan ditemukan.\n")
 
-        print(Fore.CYAN + "\n=== DETAIL NOMOR ===")
-        print(Fore.GREEN + f"Negara        : {country}")
-        print(Fore.GREEN + f"Operator      : {provider or 'Tidak diketahui'}")
-        print(Fore.GREEN + f"Zona Waktu    : {', '.join(zones)}")
-        print(Fore.GREEN + f"Tipe Nomor    : {tipe_map.get(type_of_number, 'Tidak diketahui')}")
-        print(Fore.GREEN + f"Internasional : {phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL)}")
+        print(Fore.CYAN + "=== DETAIL NOMOR ===")
+        print(Fore.GREEN + f"Negara         : {data.get('country_name')}")
+        print(Fore.GREEN + f"Kode Negara    : +{data.get('country_code')}")
+        print(Fore.GREEN + f"Lokasi         : {data.get('location') or 'Tidak tersedia'}")
+        print(Fore.GREEN + f"Provider       : {data.get('carrier') or 'Tidak diketahui'}")
+        print(Fore.GREEN + f"Tipe Layanan   : {data.get('line_type')}")
+        print(Fore.GREEN + f"Format Lokal   : {data.get('local_format')}")
+        print(Fore.GREEN + f"Format Internasional : {data.get('international_format')}")
 
     except Exception as e:
-        print(Fore.RED + f"[!] Gagal memproses nomor: {e}")
+        print(Fore.RED + f"[!] Gagal mengakses API: {e}")
