@@ -3,13 +3,14 @@ import time
 import pyfiglet
 from colorama import Fore, init
 
-# Import modul OSINT
+# Import semua modul OSINT
 from modules import (
     username_hunter,
     email_breach_advanced,
     domain_deep_lookup,
     geo_image_intel,
     phone_lookup,
+    phone_lookup_advanced,
     pdf_report
 )
 
@@ -27,10 +28,11 @@ def menu():
     print(Fore.BLUE + "[ Menu OSINT CLI Rakyat PRO ]")
     print("1. Cari Username")
     print("2. Cek Email Bocor")
-    print("3. Analisa Domain")
+    print("3. Analisa Domain/IP")
     print("4. Metadata Foto & Lokasi")
-    print("5. Cek Nomor HP")
-    print("6. Export Laporan PDF")
+    print("5. Cek Nomor HP (Offline)")
+    print("6. Cek Nomor HP (API NumVerify)")
+    print("7. Export Laporan PDF")
     print("0. Keluar")
     choice = input("\nPilih opsi: ")
 
@@ -47,15 +49,18 @@ def menu():
         path = input("Masukkan path foto: ")
         geo_image_intel.analyze_image(path)
     elif choice == "5":
-        number = input("Masukkan nomor HP (dengan kode negara): ")
+        number = input("Masukkan nomor HP: ")
         phone_lookup.lookup_number(number)
     elif choice == "6":
+        number = input("Masukkan nomor HP (dengan kode negara, ex: +62...): ")
+        phone_lookup_advanced.lookup_number_advanced(number)
+    elif choice == "7":
         pdf_report.export_pdf()
     elif choice == "0":
-        print("Keluar...")
+        print(Fore.CYAN + "\nKeluar dari OSINT CLI Rakyat...")
         exit()
     else:
-        print("Pilihan tidak valid.")
+        print(Fore.RED + "Pilihan tidak valid.")
 
 if __name__ == "__main__":
     show_banner()
