@@ -24,7 +24,6 @@ def lookup_number_advanced(phone_number):
             return
 
         print(Fore.GREEN + "\n✅ Nomor valid dan ditemukan.\n")
-
         print(Fore.CYAN + "=== DETAIL NOMOR ===")
         print(Fore.GREEN + f"Negara         : {data.get('country_name')}")
         print(Fore.GREEN + f"Kode Negara    : +{data.get('country_code')}")
