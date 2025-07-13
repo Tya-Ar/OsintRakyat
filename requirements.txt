@@ -2,3 +2,4 @@ requests
 pyfiglet
 colorama
 Pillow
+python-dotenv
